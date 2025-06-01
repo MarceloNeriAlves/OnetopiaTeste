@@ -1,0 +1,54 @@
+2.1 – Conceitos
+Explique a diferença entre Data Lake e Data Warehouse.
+
+	As diferenças entre Data Lake e Data Warehouse estão nas suas características e especialidades. Um Lake é utilizado e otimizado para armazenar uma grande quantidade de dados, nos mais diversos
+	estados de tratamento ou transformação, podendo ser brutos, estruturados ou não. Seus principais benefícios são a escalabilidade e flexibilidade. Já uma Warehouse é utilizada com foco em dados
+	organizados, limpos, transformados e modelados; Normalmente a Warehouse é um local extremamente otimizado para queries e análises de BI.
+	
+
+O que é Delta Lake e quais são seus principais benefícios?
+
+	O Delta Lake é uma evolução do Data Lake, uma camada de armazenamento onde se utiliza o formato Delta para as tabelas. Rodando através do Apache Spark, o Delta Lake traz benefícios enormes, como:
+		- Transações ACID: dentro da camada transacional do Delta Lake ele garante que as operações de leitura/escrita realizadas mantenham a atomicidade, consistência, isolamento e durabilidade dos dados.
+		- Schema Enforcement: O Delta Lake é capaz de garantir a presença das colunas, com tipagens corretas e respeitando regra de nulos, garantindo a integridade do schema e dos dados. 
+		- Schema Evolution: Schema flexível em caso de mudança na estrutura dos dados, de forma automática.
+		- Time Travel: Um dos principais benefícios do Delta Lake é a capacidade de versionamento dos dados, sendo possível auditar e recuperar versões antigas.
+		- Performance Otimizada: Redução em número de arquivos pequenos, pula arquivos que não possuem dados relevantes, capaz de realizar z-ordering, onde os dados são agrupados em similaridade no armazenamento.
+
+Quando utilizar a modelagem em camadas (Bronze, Silver, Gold)?
+
+	A modelagem em camadas é uma boa prática sempre que for de interesse organizar e controlar o fluxo de dados. Ela facilita muito o ETL/ELT incremental, a governança de dados e a reutilização, além
+	de dar clareza no pipeline de dados. Dentro dessa modelagem, cada camada tem o seu papel: a bronze é responsável por dados brutos ou com transformações mínimas, a silver é onde a maior parte
+	dos tratamentos de qualidade dos dados ocorrem, visando dados integrados e confiáveis; a gold é a camada de tabelas transformadas em seu formato final, são tabelas voltadas ao negócio, com métricas e KPIs,
+	prontas para consumo em ferramentas de BI ou análise por queries.
+
+2.2 – Spark / Databricks
+
+Qual a diferença entre Spark SQL e PySpark?
+	Ambas são formas de interagir com o Spark, sendo Spark SQL a interface que permite o uso do SQL nas consultas Spark, enquanto PySpark é a API que conecta o Python ao Spark, possibilitando o uso de Python ou SQL (spark.sql())
+	para a transformação de dados e programação de pipelines.
+	
+O que é lazy evaluation no Spark?
+	Lazy evaluation é uma característica do Spark que significa que ele não executa as transformações quando elas são definidas. O único momento que o Spark realmente executa ações é quando é necessário um resultado
+	das transformações, como, por exemplo, collect(), count(), write(). Essa característica é um benefício na eficiência do processamento.
+	
+Como o cache influencia na performance de jobs?
+	O cache é responsável por armazenar temporariamente na memória o resultado de um Dataframe/RDD, evitando o reprocessamento em jobs que utilizam os mesmos dados. É uma opção útil quando o reprocessamento
+	desse Dataframe seja custoso. A ressalva de utilizar o cache é a limitação da memória (ou do disco em caso de persist()), que pode se tornar um gargalo também.
+
+2.3 – Arquitetura
+Qual seria uma arquitetura ideal de ingestão de dados em tempo real usando Databricks?
+
+	Ingestão: Streaming com Structured Streaming do Databricks, capturando dados em tempo real das fontes e garantindo escalabilidade, consistência e confiabilidade.
+	Armazenamento: Salvar dados em uma landing zone em forma bruta, e na camada bronze com mínimos tratamentos e em Delta. Estes dados então seriam armazenados no Azure Data Lake Storage Gen2, por preferência pessoal.
+	Processamento: Aplicar transformações para as camadas Silver e Gold, visando dados limpos e agregados.
+	Consumo: Expor os dados para uso em BI, dashboards ou machine learning. Sendo uma possibilidade inserir as tabelas gold no Databricks SQL Warehouse
+	Orquestração: Utilizando o Databricks Workflow como orquestrador da pipeline.
+	
+	Existem diversas arquiteturas possíveis e igualmente eficientes (AWS/GSC/ADF/Airflow), mas esta arquitetura é escalável, resiliente e tira o proveito máximo do ecossistema Databricks.
+
+Como implementar controle de qualidade de dados (Data Quality) no Databricks?
+
+	Qualidade de dados é um conceito importante em qualquer ambiente de dados. Temos as regras básicas e universais como ausência de nulos em campos obrigatórios, de duplicidades, validações de tipagem, logs de
+	erro/linhas problemáticas, dashboards de qualidade de dados, notificações de falhas entre outros. Especificamente no Databricks/Delta Lakes temos as Delta Constraints, como NOT NULL e CHECK e Schema Enforcement
+	onde podemos exigir se uma coluna pode ou não ser nula/tipagem. Time Travel também é uma característica importantíssima das Delta Tables na auditabilidade dos dados, aumentando sua qualidade.
